@@ -1,0 +1,20 @@
+{
+	"@id" : "ex:PersonShape",
+	"@type" : "NodeShape",
+	"targetClass" : "ex:Person",
+	"property" : [
+		{
+			"path" : "ex:ssn",
+			"maxCount" : 1,
+			"datatype" : "xsd:string" ,
+			"pattern" : "^\\d{3}-\\d{2}-\\d{4}$"
+		},
+		{
+			"path" : "ex:worksFor",
+			"class" : "ex:Company",
+			"nodeKind" : "sh:IRI"
+		}
+	],
+	"closed" : true,
+	"ignoredProperties" : [ "rdf:type" ]
+}

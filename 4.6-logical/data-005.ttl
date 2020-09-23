@@ -1,0 +1,11 @@
+ex:Bob a ex:Person ;
+	ex:firstName "Robert" ; 
+	ex:lastName "Coin" .
+
+ex:Carla a ex:Person ;
+	ex:fullName "Carla Miller" .
+	
+ex:Dory a ex:Person ;
+	ex:firstName "Dory" ;
+	ex:lastName "Dunce" ;
+	ex:fullName "Dory Dunce" .

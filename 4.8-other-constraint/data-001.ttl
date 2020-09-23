@@ -1,0 +1,6 @@
+ex:Alice
+	ex:firstName "Alice" .
+
+ex:Bob
+	ex:firstName "Bob" ;
+	ex:middleInitial "J" .

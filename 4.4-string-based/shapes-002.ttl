@@ -1,0 +1,8 @@
+ex:PatternExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob, ex:Alice, ex:Carol ;
+	sh:property [
+		sh:path ex:bCode ;
+		sh:pattern "^B" ;    # starts with 'B'
+		sh:flags "i" ;       # Ignore case
+	] .

@@ -1,0 +1,22 @@
+ex:LanguageConstraintComponentUsingSELECT
+	a sh:ConstraintComponent ;
+	rdfs:label "Language constraint component" ;
+	sh:parameter [
+		sh:path ex:lang ;
+		sh:datatype xsd:string ;
+		sh:minLength 2 ;
+		sh:name "language" ;
+		sh:description "The language tag, e.g. \"de\"." ;
+	] ;
+	sh:labelTemplate "Values are literals with language \"{$lang}\"" ;
+	sh:propertyValidator [
+		a sh:SPARQLSelectValidator ;
+		sh:message "Values are literals with language \"{?lang}\"" ;
+		sh:select """
+			SELECT DISTINCT $this ?value
+			WHERE {
+				$this $PATH ?value .
+				FILTER (!isLiteral(?value) || !langMatches(lang(?value), $lang))
+			}
+			"""
+	] .

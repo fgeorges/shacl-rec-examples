@@ -1,0 +1,2 @@
+ex:Alice a ex:Person .
+ex:Bob a ex:Person .

@@ -1,0 +1,20 @@
+ex:ExampleNodeShapeWithPropertyShapes
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:email ;
+		sh:name "e-mail" ;
+		sh:description "We need at least one email value" ;
+		sh:minCount 1 ;
+	] ;
+	sh:property [
+		sh:path (ex:knows ex:email) ;
+		sh:name "Friend's e-mail" ;
+		sh:description "We need at least one email for everyone you know" ;
+		sh:minCount 1 ;
+	] .
+	
+ex:ExamplePropertyShape
+	a sh:PropertyShape ;
+	sh:path ex:email ;
+	sh:description "We need at least one email value" ;
+	sh:minCount 1 .

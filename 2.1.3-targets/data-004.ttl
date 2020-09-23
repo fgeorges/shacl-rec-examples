@@ -1,0 +1,2 @@
+ex:Alice ex:knows ex:Bob .
+ex:Bob ex:livesIn ex:NewYork .

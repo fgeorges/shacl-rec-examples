@@ -1,0 +1,1 @@
+ex:InvalidInstance1 ex:property "Some value" .

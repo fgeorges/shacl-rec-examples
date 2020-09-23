@@ -1,0 +1,3 @@
+ex:Bob
+	ex:firstName "Bob" ;
+	ex:givenName "Bob" .

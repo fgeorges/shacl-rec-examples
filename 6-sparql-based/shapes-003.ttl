@@ -1,0 +1,11 @@
+ex:LanguageExampleShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Country ;
+	sh:property [
+		sh:path ex:germanLabel ;
+		ex:lang "de" ;
+	] ;
+	sh:property [
+		sh:path ex:englishLabel ;
+		ex:lang "en" ;
+	] .

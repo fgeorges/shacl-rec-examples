@@ -1,0 +1,2 @@
+ex:Person
+	a rdfs:Class, sh:NodeShape .

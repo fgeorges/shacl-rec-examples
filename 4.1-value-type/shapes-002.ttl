@@ -1,0 +1,7 @@
+ex:DatatypeExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice, ex:Bob, ex:Carol ;
+	sh:property [
+		sh:path ex:age ;
+		sh:datatype xsd:integer ;
+	] .

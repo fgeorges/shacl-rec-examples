@@ -1,0 +1,11 @@
+ex:ClosedShapeExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice, ex:Bob ;
+	sh:closed true ;
+	sh:ignoredProperties (rdf:type) ;
+	sh:property [
+		sh:path ex:firstName ;
+	] ;
+	sh:property [
+		sh:path ex:lastName ;
+	] .

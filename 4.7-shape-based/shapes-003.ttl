@@ -1,0 +1,21 @@
+ex:HandShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Hand ;
+	sh:property [
+		sh:path ex:digit ;
+		sh:maxCount 5 ;
+	] ;
+	sh:property [
+		sh:path ex:digit ;
+		sh:qualifiedValueShape [ sh:class ex:Thumb ] ;
+		sh:qualifiedValueShapesDisjoint true ;
+		sh:qualifiedMinCount 1 ;
+		sh:qualifiedMaxCount 1 ;
+	] ;
+	sh:property [
+		sh:path ex:digit ;
+		sh:qualifiedValueShape [ sh:class ex:Finger ] ;
+		sh:qualifiedValueShapesDisjoint true ;
+		sh:qualifiedMinCount 4 ;
+		sh:qualifiedMaxCount 4 ;
+	] .

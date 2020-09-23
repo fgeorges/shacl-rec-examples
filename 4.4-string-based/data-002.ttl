@@ -1,0 +1,3 @@
+ex:Bob ex:bCode "b101" .
+ex:Alice ex:bCode "B102" .
+ex:Carol ex:bCode "C103" .

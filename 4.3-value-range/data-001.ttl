@@ -1,0 +1,3 @@
+ex:Bob ex:age 23 .
+ex:Alice ex:age 220 .
+ex:Ted ex:age "twenty one" .

@@ -1,0 +1,3 @@
+ex:Alice a ex:Person .
+ex:Bob a ex:Person .
+ex:NewYork a ex:Place .

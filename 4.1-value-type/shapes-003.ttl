@@ -1,0 +1,4 @@
+ex:NodeKindExampleShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf ex:knows ;
+	sh:nodeKind sh:IRI .

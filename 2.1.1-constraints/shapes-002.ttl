@@ -1,0 +1,11 @@
+ex:MultiplePatternsShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:name ;
+		sh:pattern "^Start" ;
+		sh:flags "i" ;
+	] ;
+	sh:property [
+		sh:path ex:name ;
+		sh:pattern "End$" ;
+	] .

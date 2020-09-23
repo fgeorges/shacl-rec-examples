@@ -1,0 +1,8 @@
+ex:Alice
+	ex:label "Alice" ;
+	ex:label "Alice"@en ;
+	ex:label "Alice"@fr .
+
+ex:Bob
+	ex:label "Bob"@en ;
+	ex:label "Bobby"@en .

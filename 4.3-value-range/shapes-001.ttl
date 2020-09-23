@@ -1,0 +1,8 @@
+ex:NumericRangeExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob, ex:Alice, ex:Ted ;
+	sh:property [
+		sh:path ex:age ;
+		sh:minInclusive 0 ;
+		sh:maxInclusive 150 ;
+	] .

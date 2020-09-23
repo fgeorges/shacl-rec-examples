@@ -1,0 +1,9 @@
+ex:Mountain
+	ex:prefLabel "Mountain"@en ;
+	ex:prefLabel "Hill"@en-NZ ;
+	ex:prefLabel "Maunga"@mi .
+
+ex:Berg
+	ex:prefLabel "Berg" ;
+	ex:prefLabel "Berg"@de ;
+	ex:prefLabel ex:BergLabel .

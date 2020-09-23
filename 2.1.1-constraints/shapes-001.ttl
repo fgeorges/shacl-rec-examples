@@ -1,0 +1,7 @@
+ex:InvoiceShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:customer ;
+		sh:class ex:Customer ;
+		sh:class ex:Person ;
+	] .

@@ -1,0 +1,9 @@
+ex:QualifiedValueShapeExampleValidResource
+	ex:parent ex:John ;
+	ex:parent ex:Jane .
+
+ex:John
+	ex:gender ex:male .
+
+ex:Jane
+	ex:gender ex:female .

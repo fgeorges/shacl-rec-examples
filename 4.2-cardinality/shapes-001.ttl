@@ -1,0 +1,5 @@
+ex:MinCountExampleShape
+	a sh:PropertyShape ;
+	sh:targetNode ex:Alice, ex:Bob ;
+	sh:path ex:name ;
+	sh:minCount 1 .

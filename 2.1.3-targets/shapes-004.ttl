@@ -1,0 +1,3 @@
+ex:TargetSubjectsOfExampleShape
+	a sh:NodeShape ;
+	sh:targetSubjectsOf ex:knows .

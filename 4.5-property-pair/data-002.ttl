@@ -1,0 +1,7 @@
+ex:USA
+	ex:prefLabel "USA" ;
+	ex:altLabel "United States" .
+
+ex:Germany
+	ex:prefLabel "Germany" ;
+	ex:altLabel "Germany" .

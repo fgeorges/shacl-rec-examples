@@ -1,0 +1,8 @@
+ex:NotExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:InvalidInstance1 ;
+	sh:not [
+		a sh:PropertyShape ;
+		sh:path ex:property ;
+		sh:minCount 1 ;
+	] .

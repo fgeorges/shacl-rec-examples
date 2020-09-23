@@ -1,0 +1,8 @@
+# This box represents an input data graph.
+# When highlighting is used in the examples:
+
+# Elements highlighted in blue are focus nodes
+ex:Bob a ex:Person .
+
+# Elements highlighted in red are focus nodes that fail validation
+ex:Alice a ex:Person .

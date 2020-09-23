@@ -1,0 +1,7 @@
+ex:ValidInstance
+	ex:property "One" .
+
+# Invalid: more than one property
+ex:InvalidInstance
+	ex:property "One" ;
+	ex:property "Two" .

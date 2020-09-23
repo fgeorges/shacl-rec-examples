@@ -1,0 +1,21 @@
+ex:LanguageConstraintComponentUsingASK
+	a sh:ConstraintComponent ;
+	rdfs:label "Language constraint component" ;
+	sh:parameter [
+		sh:path ex:lang ;
+		sh:datatype xsd:string ;
+		sh:minLength 2 ;
+		sh:name "language" ;
+		sh:description "The language tag, e.g. \"de\"." ;
+	] ;
+	sh:labelTemplate "Values are literals with language \"{$lang}\"" ;
+	sh:validator ex:hasLang .
+	
+ex:hasLang
+	a sh:SPARQLAskValidator ;
+	sh:message "Values are literals with language \"{$lang}\"" ;
+	sh:ask """
+		ASK {
+			FILTER (isLiteral($value) && langMatches(lang($value), $lang))
+		}
+		""" .

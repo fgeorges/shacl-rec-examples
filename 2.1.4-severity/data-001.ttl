@@ -1,0 +1,2 @@
+ex:MyInstance
+	ex:myProperty "http://toomanycharacters"^^xsd:anyURI .

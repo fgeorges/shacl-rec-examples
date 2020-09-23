@@ -1,0 +1,22 @@
+[	a sh:ValidationReport ;
+	sh:conforms false ;
+	sh:result
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Warning ;
+		sh:focusNode ex:MyInstance ;
+		sh:resultPath ex:myProperty ;
+		sh:value "http://toomanycharacters"^^xsd:anyURI ;
+		sh:sourceConstraintComponent sh:DatatypeConstraintComponent ;
+		sh:sourceShape _:b1 ;
+	] ,
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:MyInstance ;
+		sh:resultPath ex:myProperty ;
+		sh:value "http://toomanycharacters"^^xsd:anyURI ;
+		sh:resultMessage "Too many characters"@en ;
+		sh:resultMessage "Zu viele Zeichen"@de ;
+		sh:sourceConstraintComponent sh:MaxLengthConstraintComponent ;
+		sh:sourceShape _:b2 ;
+	]
+] .

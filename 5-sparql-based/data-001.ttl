@@ -1,0 +1,5 @@
+ex:ValidCountry a ex:Country ;
+	ex:germanLabel "Spanien"@de .
+  
+ex:InvalidCountry a ex:Country ;
+	ex:germanLabel "Spain"@en .

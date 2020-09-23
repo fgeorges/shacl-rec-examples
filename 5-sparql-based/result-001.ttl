@@ -1,0 +1,13 @@
+[	a sh:ValidationReport ;
+	sh:conforms false ;
+	sh:result [
+		a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:InvalidCountry ;
+		sh:resultPath ex:germanLabel ;
+		sh:value "Spain"@en ;
+		sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+		sh:sourceShape ex:LanguageExampleShape ;
+		# ...
+	]
+] .

@@ -1,0 +1,21 @@
+ex:XoneConstraintExampleShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Person ;
+	sh:xone (
+		[
+			sh:property [
+				sh:path ex:fullName ;
+				sh:minCount 1 ;
+			]
+		]
+		[
+			sh:property [
+				sh:path ex:firstName ;
+				sh:minCount 1 ;
+			] ;
+			sh:property [
+				sh:path ex:lastName ;
+				sh:minCount 1 ;
+			]
+		]
+	) .

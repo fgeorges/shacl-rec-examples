@@ -1,0 +1,3 @@
+ex:PersonShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice .

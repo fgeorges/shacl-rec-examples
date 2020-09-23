@@ -1,0 +1,16 @@
+ex:LanguageExamplePropertyShape
+	a sh:PropertyShape ;
+	sh:targetClass ex:Country ;
+	sh:path ex:germanLabel ;
+	sh:sparql [
+		a sh:SPARQLConstraint ;   # This triple is optional
+		sh:message "Values are literals with German language tag." ;
+		sh:prefixes ex: ;
+		sh:select """
+			SELECT $this ?value
+			WHERE {
+				$this $PATH ?value .
+				FILTER (!isLiteral(?value) || !langMatches(lang(?value), "de"))
+			}
+			""" ;
+	] .

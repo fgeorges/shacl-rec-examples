@@ -1,0 +1,3 @@
+ex:Alice
+	ex:alumniOf ex:Harvard ;
+	ex:alumniOf ex:Stanford .

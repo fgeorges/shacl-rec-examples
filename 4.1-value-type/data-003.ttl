@@ -1,0 +1,2 @@
+ex:Bob ex:knows ex:Alice .
+	ex:Alice ex:knows "Bob" .

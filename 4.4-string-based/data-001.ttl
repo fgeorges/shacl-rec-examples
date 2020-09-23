@@ -1,0 +1,2 @@
+ex:Bob ex:password "123456789" .
+ex:Alice ex:password "1234567890ABC" .

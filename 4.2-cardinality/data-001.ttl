@@ -1,0 +1,2 @@
+ex:Alice ex:name "Alice" .
+ex:Bob ex:givenName "Bob"@en .

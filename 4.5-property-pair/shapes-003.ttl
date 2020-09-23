@@ -1,0 +1,6 @@
+ex:LessThanExampleShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:startDate ;
+		sh:lessThan ex:endDate ;
+	] .

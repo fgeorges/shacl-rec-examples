@@ -1,0 +1,3 @@
+ex:Doctor rdfs:subClassOf ex:Person .
+ex:Who a ex:Doctor .
+ex:House a ex:Nephrologist .

@@ -1,0 +1,17 @@
+ex:SuperShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:property ;
+		sh:minCount 1 ;
+	] .
+
+ex:ExampleAndShape
+	a sh:NodeShape ;
+	sh:targetNode ex:ValidInstance, ex:InvalidInstance ;
+	sh:and (
+		ex:SuperShape
+		[
+			sh:path ex:property ;
+			sh:maxCount 1 ;
+		]
+	) .

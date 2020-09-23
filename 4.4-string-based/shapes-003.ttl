@@ -1,0 +1,7 @@
+ex:NewZealandLanguagesShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Mountain, ex:Berg ;
+	sh:property [
+		sh:path ex:prefLabel ;
+		sh:languageIn ( "en" "mi" ) ;
+	] .

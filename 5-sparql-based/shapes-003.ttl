@@ -1,0 +1,11 @@
+ex:
+	a owl:Ontology ;
+	owl:imports sh: ;
+	sh:declare [
+		sh:prefix "ex" ;
+		sh:namespace "http://example.com/ns#"^^xsd:anyURI ;
+	] ;
+	sh:declare [
+		sh:prefix "schema" ;
+		sh:namespace "http://schema.org/"^^xsd:anyURI ;
+	] .
