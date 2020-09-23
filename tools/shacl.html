@@ -2,9 +2,9 @@
 <html dir="ltr" typeof="bibo:Document w3p:REC" prefix="bibo: http://purl.org/ontology/bibo/ w3p: http://www.w3.org/2001/02pd/rec54#" lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta property="dc:language" content="en" lang="">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta property="dc:language" content="en" lang="" />
     <title>Shapes Constraint Language (SHACL)</title>
 
 
@@ -441,7 +441,7 @@
     <style>
         /*
 
-github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+github.com style (c) Vasily Polovnyov &lt;vast@whiteants.net>
 
 */
 
@@ -539,9 +539,9 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
             font-weight: bold;
         }
     </style>
-    <link rel="stylesheet" href="https://www.w3.org/StyleSheets/TR/2016/W3C-REC">
-    <link rel="canonical" href="https://www.w3.org/TR/shacl/">
-    <meta name="generator" content="ReSpec 15.3.0">
+    <link rel="stylesheet" href="https://www.w3.org/StyleSheets/TR/2016/W3C-REC" />
+    <link rel="canonical" href="https://www.w3.org/TR/shacl/" />
+    <meta name="generator" content="ReSpec 15.3.0" />
     <script id="initialUserConfig" type="application/json">
         {
             "edDraftURI": "https://w3c.github.io/data-shapes/shacl/",
@@ -608,7 +608,7 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
 <body aria-busy="false" class="h-entry" id="respecDocument">
     <div class="head" role="contentinfo" id="respecHeader">
         <p>
-            <a class="logo" href="https://www.w3.org/"><img src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" alt="W3C" width="72" height="48"></a>
+            <a class="logo" href="https://www.w3.org/"><img src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" alt="W3C" width="72" height="48" /></a>
         </p>
         <p></p>
         <h1 class="title p-name" id="title" property="dcterms:title">Shapes Constraint Language (SHACL)</h1>
@@ -625,10 +625,10 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
             <dt>Previous version:</dt>
             <dd><a rel="dcterms:replaces" href="https://www.w3.org/TR/2017/PR-shacl-20170608/">https://www.w3.org/TR/2017/PR-shacl-20170608/</a></dd>
             <dt>Editors:</dt>
-            <dd class="p-author h-card vcard" property="bibo:editor" resource="_:editor0" data-editor-id="46500"><span property="rdf:first" typeof="foaf:Person"><meta property="foaf:name" content="Holger Knublauch"><a class="u-url url p-name fn" property="foaf:homepage" href="http://knublauch.com/">Holger Knublauch</a>, <a property="foaf:workplaceHomepage" class="p-org org h-org h-card" href="http://topquadrant.com/">TopQuadrant, Inc.</a></span>
+            <dd class="p-author h-card vcard" property="bibo:editor" resource="_:editor0" data-editor-id="46500"><span property="rdf:first" typeof="foaf:Person"><meta property="foaf:name" content="Holger Knublauch" /><a class="u-url url p-name fn" property="foaf:homepage" href="http://knublauch.com/">Holger Knublauch</a>, <a property="foaf:workplaceHomepage" class="p-org org h-org h-card" href="http://topquadrant.com/">TopQuadrant, Inc.</a></span>
                 <span property="rdf:rest" resource="_:editor1"></span>
             </dd>
-            <dd class="p-author h-card vcard" resource="_:editor1" data-editor-id="58399"><span property="rdf:first" typeof="foaf:Person"><meta property="foaf:name" content="Dimitris Kontokostas"><a class="u-url url p-name fn" property="foaf:homepage" href="http://Kontokostas.com">Dimitris Kontokostas</a>, <a property="foaf:workplaceHomepage" class="p-org org h-org h-card" href="http://informatik.uni-leipzig.de/">University of Leipzig</a></span>
+            <dd class="p-author h-card vcard" resource="_:editor1" data-editor-id="58399"><span property="rdf:first" typeof="foaf:Person"><meta property="foaf:name" content="Dimitris Kontokostas" /><a class="u-url url p-name fn" property="foaf:homepage" href="http://Kontokostas.com">Dimitris Kontokostas</a>, <a property="foaf:workplaceHomepage" class="p-org org h-org h-card" href="http://informatik.uni-leipzig.de/">University of Leipzig</a></span>
                 <span property="rdf:rest" resource="rdf:nil"></span>
             </dd>
 
@@ -664,7 +664,7 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
             <a href="https://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and
             <a rel="license" href="https://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.
         </p>
-        <hr title="Separator for header">
+        <hr title="Separator for header" />
     </div>
 
     <section id="abstract" class="introductory" property="dc:abstract">
@@ -989,7 +989,7 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
                     A <dfn data-dfn-type="dfn" id="dfn-property">property</dfn> is an <a href="#dfn-iri" class="internalDFN" data-link-type="dfn">IRI</a>. An <a href="#dfn-rdf-term" class="internalDFN" data-link-type="dfn">RDF term</a> <code>n</code>                    has a <dfn data-dfn-type="dfn" id="dfn-value">value</dfn> <code>v</code> for property <code>p</code> in an <a href="#dfn-rdf-graph" class="internalDFN" data-link-type="dfn">RDF graph</a> if there is an <a href="#dfn-rdf-triple" class="internalDFN"
                         data-link-type="dfn">RDF triple</a> in the graph with <a href="#dfn-subject" class="internalDFN" data-link-type="dfn">subject</a> <code>n</code>, <a href="#dfn-predicate" class="internalDFN" data-link-type="dfn">predicate</a> <code>p</code>,
                     and <a href="#dfn-object" class="internalDFN" data-link-type="dfn">object</a> <code>v</code>. The phrase "Every value of P in graph G ..." means "Every object of a triple in G with predicate P ...". (In this document, the verbs <em>specify</em>                    or <em>declare</em> are sometimes used to express the fact that an RDF term has values for a given predicate in a graph.)
-                    <br>
+                    <br />
                     <dfn data-dfn-type="dfn" id="dfn-sparql-property-paths">SPARQL property paths</dfn> are defined as in <a href="https://www.w3.org/TR/sparql11-query/#pp-language">SPARQL 1.1</a>. An RDF term <code>n</code> has value <code>v</code> for
                     <a href="#dfn-sparql-property-paths" class="internalDFN" data-link-type="dfn">SPARQL property path</a> expression
                     <code>p</code> in an RDF graph <code>G</code> if there is a solution mapping in the result of the SPARQL query
@@ -1006,7 +1006,7 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
 						for the property <code>rdf:first</code> in <code>G</code> and exactly one <a href="#dfn-value" class="internalDFN" data-link-type="dfn">value</a>
 						for the property <code>rdf:rest</code> in <code>G</code> that is also a SHACL list in <code>G</code>,
 						and the list does not have itself as a value of the property path <code>rdf:rest+</code> in <code>G</code>.</span>
-                    <br> The <dfn data-dfn-type="dfn" id="dfn-members">members</dfn> of any SHACL list except <code>rdf:nil</code> in an RDF graph <code>G</code> consist of its value for <code>rdf:first</code> in <code>G</code> followed by the members
+                    <br /> The <dfn data-dfn-type="dfn" id="dfn-members">members</dfn> of any SHACL list except <code>rdf:nil</code> in an RDF graph <code>G</code> consist of its value for <code>rdf:first</code> in <code>G</code> followed by the members
                     in <code>G</code> of its value for <code>rdf:rest</code> in <code>G</code>. The SHACL list <code>rdf:nil</code> has no members in any RDF graph.
                 </div>
             </div>
@@ -1364,8 +1364,8 @@ ex:Calvin
                 <p>The button below can be used to show or hide the SPARQL definitions.</p>
                 <form>
                     <p>
-                        <input id="hide-sparql" onclick="$('.def-sparql').css('display', 'none'); $('#hide-sparql').css('display', 'none'); $('#show-sparql').css('display', '');" value="Hide SPARQL Definitions" type="button">
-                        <input id="show-sparql" onclick="$('.def-sparql').css('display', '');     $('#show-sparql').css('display', 'none'); $('#hide-sparql').css('display', '');" style="display:none" value="Show SPARQL Definitions" type="button">
+                        <input id="hide-sparql" onclick="$('.def-sparql').css('display', 'none'); $('#hide-sparql').css('display', 'none'); $('#show-sparql').css('display', '');" value="Hide SPARQL Definitions" type="button" />
+                        <input id="show-sparql" onclick="$('.def-sparql').css('display', '');     $('#show-sparql').css('display', 'none'); $('#hide-sparql').css('display', '');" style="display:none" value="Show SPARQL Definitions" type="button" />
                     </p>
                 </form>
             </div>
@@ -1406,7 +1406,7 @@ ex:Calvin
                 </div>
             </div>
             <div style="height: 60px; margin-left: 260px">
-                <img alt="Class Diagram Arrows" src="images/Class-Diagram-Arrows.png">
+                <img alt="Class Diagram Arrows" src="images/Class-Diagram-Arrows.png" />
             </div>
             <div style="white-space: nowrap; min-width: 1000px">
                 <div class="diagram-class" style="float: left; margin-right: 60px;">
@@ -5066,7 +5066,7 @@ ex:hasLang
                     For solution mapping <code>μ</code>, define <code>Table(μ)</code> to be the multiset formed from <code>μ</code>.
                 </p>
                 <p>
-                    &nbsp;&nbsp;&nbsp;<code>Table(μ) = { μ }</code><br> &nbsp;&nbsp;&nbsp;
+                    <code>Table(μ) = { μ }</code><br />
                     <code>Card[μ] = 1</code>
                 </p>
                 <p>
@@ -6331,7 +6331,7 @@ shsh:EntailmentShape
         <script type="text/javascript">
             tooltip = "Targets are not the only way to initiate validation, SHACL also allows specific nodes to be validated against specific shapes.";
             var t = document.getElementsByClassName("target-can-be-skipped");
-            for (var i = 0; i < t.length; i++) {
+            for (var i = 0; i &lt; t.length; i++) {
                 t[i].title = tooltip;
             }
         </script>
