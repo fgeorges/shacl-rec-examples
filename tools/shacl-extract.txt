@@ -1,0 +1,1711 @@
+abstract - Abstract
+
+sotd - Status of This Document
+
+introduction - 1. Introduction
+
+introduction / terminology - 1.1 Terminology
+
+introduction / conventions - 1.2 Document Conventions
+
+>> example-shapes:
+# This box represents an input shapes graph
+
+# Triples that can be omitted are marked as grey e.g.
+<s> <p> <o> .
+
+>> example-data:
+# This box represents an input data graph.
+# When highlighting is used in the examples:
+
+# Elements highlighted in blue are focus nodes
+ex:Bob a ex:Person .
+
+# Elements highlighted in red are focus nodes that fail validation
+ex:Alice a ex:Person .
+
+>> example-results:
+# This box represents an output results graph
+
+>> def-sparql-body:
+# This box contains SPARQL or textual definitions. 
+
+introduction / conformance - 1.3 Conformance
+
+introduction / shacl-example - 1.4 SHACL Example
+
+>> example-data:
+ex:Alice
+	a ex:Person ;
+	ex:ssn "987-65-432A" .
+  
+ex:Bob
+	a ex:Person ;
+	ex:ssn "123-45-6789" ;
+	ex:ssn "124-35-6789" .
+  
+ex:Calvin
+	a ex:Person ;
+	ex:birthDate "1971-07-07"^^xsd:date ;
+	ex:worksFor ex:UntypedCompany .
+
+>> example-shapes ttl:
+ex:PersonShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Person ;    # Applies to all persons
+	sh:property [                 # _:b1
+		sh:path ex:ssn ;           # constrains the values of ex:ssn
+		sh:maxCount 1 ;
+		sh:datatype xsd:string ;
+		sh:pattern "^\\d{3}-\\d{2}-\\d{4}$" ;
+	] ;
+	sh:property [                 # _:b2
+		sh:path ex:worksFor ;
+		sh:class ex:Company ;
+		sh:nodeKind sh:IRI ;
+	] ;
+	sh:closed true ;
+	sh:ignoredProperties ( rdf:type ) .
+
+>> example-shapes jsonld:
+{
+	"@id" : "ex:PersonShape",
+	"@type" : "NodeShape",
+	"targetClass" : "ex:Person",
+	"property" : [
+		{
+			"path" : "ex:ssn",
+			"maxCount" : 1,
+			"datatype" : "xsd:string" ,
+			"pattern" : "^\\d{3}-\\d{2}-\\d{4}$"
+		},
+		{
+			"path" : "ex:worksFor",
+			"class" : "ex:Company",
+			"nodeKind" : "sh:IRI"
+		}
+	],
+	"closed" : true,
+	"ignoredProperties" : [ "rdf:type" ]
+}
+
+>> example-results:
+[	a sh:ValidationReport ;
+	sh:conforms false ;
+	sh:result
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:Alice ;
+		sh:resultPath ex:ssn ;
+		sh:value "987-65-432A" ;
+		sh:sourceConstraintComponent sh:RegexConstraintComponent ;
+		sh:sourceShape ... blank node _:b1 on ex:ssn above ... ;
+	] ,
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:Bob ;
+		sh:resultPath ex:ssn ;
+		sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
+		sh:sourceShape ... blank node _:b1 on ex:ssn above ... ;
+	] ,
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:Calvin ;
+		sh:resultPath ex:worksFor ;
+		sh:value ex:UntypedCompany ;
+		sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+		sh:sourceShape ... blank node _:b2 on ex:worksFor above ... ;
+	] ,
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:Calvin ;
+		sh:resultPath ex:birthDate ;
+		sh:value "1971-07-07"^^xsd:date ;
+		sh:sourceConstraintComponent sh:ClosedConstraintComponent ;
+		sh:sourceShape sh:PersonShape ;
+	] 
+] .
+
+introduction / shacl-rdfs - 1.5 Relationship between SHACL and RDFS inferencing
+
+introduction / shacl-sparql - 1.6 Relationship between SHACL and SPARQL
+
+constraints-section - 2. Shapes and Constraints
+
+constraints-section / shapes - 2.1 Shapes
+
+constraints-section / shapes / constraints - 2.1.1 Constraints, Parameters and Constraint Components
+
+>> example-shapes:
+ex:InvoiceShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:customer ;
+		sh:class ex:Customer ;
+		sh:class ex:Person ;
+	] .
+
+>> example-shapes:
+ex:MultiplePatternsShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:name ;
+		sh:pattern "^Start" ;
+		sh:flags "i" ;
+	] ;
+	sh:property [
+		sh:path ex:name ;
+		sh:pattern "End$" ;
+	] .
+
+constraints-section / shapes / focusNodes - 2.1.2 Focus Nodes
+
+constraints-section / shapes / targets - 2.1.3 Targets
+
+constraints-section / shapes / targets / targetNode - 2.1.3.1 Node targets (sh:targetNode)
+
+>> example-shapes:
+ex:PersonShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice .
+
+>> example-data:
+ex:Alice a ex:Person .
+ex:Bob a ex:Person .
+
+>> def-sparql-body:
+SELECT DISTINCT ?this    # ?this is the focus node
+WHERE {
+	BIND ($targetNode AS ?this)    # $targetNode is pre-bound to ex:Alice
+}
+
+constraints-section / shapes / targets / targetClass - 2.1.3.2 Class-based Targets (sh:targetClass)
+
+>> example-shapes:
+ex:PersonShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Person .
+
+>> example-data:
+ex:Alice a ex:Person .
+ex:Bob a ex:Person .
+ex:NewYork a ex:Place .
+
+>> example-data:
+ex:Doctor rdfs:subClassOf ex:Person .
+ex:Who a ex:Doctor .
+ex:House a ex:Nephrologist .
+
+>> def-sparql-body:
+SELECT DISTINCT ?this    # ?this is the focus node
+WHERE {
+	?this rdf:type/rdfs:subClassOf* $targetClass .    # $targetClass is pre-bound to ex:Person
+}
+
+constraints-section / shapes / targets / implicit-targetClass - 2.1.3.3 Implicit Class Targets
+
+>> example-shapes:
+ex:Person
+	a rdfs:Class, sh:NodeShape .
+
+>> example-data:
+ex:Alice a ex:Person .
+ex:NewYork a ex:Place .
+
+constraints-section / shapes / targets / targetSubjectsOf - 2.1.3.4 Subjects-of targets (sh:targetSubjectsOf)
+
+>> example-shapes:
+ex:TargetSubjectsOfExampleShape
+	a sh:NodeShape ;
+	sh:targetSubjectsOf ex:knows .
+
+>> example-data:
+ex:Alice ex:knows ex:Bob .
+ex:Bob ex:livesIn ex:NewYork .
+
+>> def-sparql-body:
+SELECT DISTINCT ?this    # ?this is the focus node
+WHERE {
+	?this $targetSubjectsOf ?any .    # $targetSubjectsOf is pre-bound to ex:knows
+}
+
+constraints-section / shapes / targets / targetObjectsOf - 2.1.3.5 Objects-of targets (sh:targetObjectsOf)
+
+>> example-shapes:
+ex:TargetObjectsOfExampleShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf ex:knows .
+
+>> example-data:
+ex:Alice ex:knows ex:Bob .
+ex:Bob ex:livesIn ex:NewYork .
+
+>> def-sparql-body:
+SELECT DISTINCT ?this    # ?this is the focus node
+WHERE {
+	?any $targetObjectsOf ?this .    # $targetObjectsOf is pre-bound to ex:knows
+}
+
+constraints-section / shapes / severity - 2.1.4 Declaring the Severity of a Shape
+
+>> example-shapes:
+ex:MyShape
+	a sh:NodeShape ;
+	sh:targetNode ex:MyInstance ;
+	sh:property [    # _:b1
+		# Violations of sh:minCount and sh:datatype are produced as warnings
+		sh:path ex:myProperty ;
+		sh:minCount 1 ;
+		sh:datatype xsd:string ;
+		sh:severity sh:Warning ;
+	] ;
+	sh:property [    # _:b2
+		# The default severity here is sh:Violation
+		sh:path ex:myProperty ;
+		sh:maxLength 10 ;
+		sh:message "Too many characters"@en ;
+		sh:message "Zu viele Zeichen"@de ;
+	] .
+
+>> example-data:
+ex:MyInstance
+	ex:myProperty "http://toomanycharacters"^^xsd:anyURI .
+
+>> example-results:
+[	a sh:ValidationReport ;
+	sh:conforms false ;
+	sh:result
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Warning ;
+		sh:focusNode ex:MyInstance ;
+		sh:resultPath ex:myProperty ;
+		sh:value "http://toomanycharacters"^^xsd:anyURI ;
+		sh:sourceConstraintComponent sh:DatatypeConstraintComponent ;
+		sh:sourceShape _:b1 ;
+	] ,
+	[	a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:MyInstance ;
+		sh:resultPath ex:myProperty ;
+		sh:value "http://toomanycharacters"^^xsd:anyURI ;
+		sh:resultMessage "Too many characters"@en ;
+		sh:resultMessage "Zu viele Zeichen"@de ;
+		sh:sourceConstraintComponent sh:MaxLengthConstraintComponent ;
+		sh:sourceShape _:b2 ;
+	]
+] .
+
+constraints-section / shapes / message - 2.1.5 Declaring Messages for a Shape
+
+constraints-section / shapes / deactivated - 2.1.6 Deactivating a Shape
+
+>> example-shapes:
+ex:PersonShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Person ;
+	sh:property ex:PersonShape-name .
+
+ex:PersonShape-name
+	a sh:PropertyShape ;
+	sh:path ex:name ;
+	sh:minCount 1 ;
+	sh:deactivated true .
+
+>> example-data:
+ex:JohnDoe a ex:Person .
+
+constraints-section / node-shapes - 2.2 Node Shapes
+
+constraints-section / property-shapes - 2.3 Property Shapes
+
+>> example-shapes:
+ex:ExampleNodeShapeWithPropertyShapes
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:email ;
+		sh:name "e-mail" ;
+		sh:description "We need at least one email value" ;
+		sh:minCount 1 ;
+	] ;
+	sh:property [
+		sh:path (ex:knows ex:email) ;
+		sh:name "Friend's e-mail" ;
+		sh:description "We need at least one email for everyone you know" ;
+		sh:minCount 1 ;
+	] .
+	
+ex:ExamplePropertyShape
+	a sh:PropertyShape ;
+	sh:path ex:email ;
+	sh:description "We need at least one email value" ;
+	sh:minCount 1 .
+
+constraints-section / property-shapes / property-paths - 2.3.1 SHACL Property Paths
+
+>> example-other:
+SPARQL Property path: ex:parent
+SHACL Property path: ex:parent
+
+SPARQL Property path: ^ex:parent
+SHACL Property path: [ sh:inversePath ex:parent ]
+
+SPARQL Property path: ex:parent/ex:firstName
+SHACL Property path: ( ex:parent ex:firstName )
+
+SPARQL Property path: rdf:type/rdfs:subClassOf*
+SHACL Property path: ( rdf:type [ sh:zeroOrMorePath rdfs:subClassOf ] )
+
+SPARQL Property path: ex:father|ex:mother
+SHACL Property path: [ sh:alternativePath ( ex:father ex:mother  ) ]
+
+constraints-section / property-shapes / property-paths / property-path-predicate - 2.3.1.1 Predicate Paths
+
+constraints-section / property-shapes / property-paths / property-path-sequence - 2.3.1.2 Sequence Paths
+
+constraints-section / property-shapes / property-paths / property-path-alternative - 2.3.1.3 Alternative Paths
+
+constraints-section / property-shapes / property-paths / property-path-inverse - 2.3.1.4 Inverse Paths
+
+constraints-section / property-shapes / property-paths / property-path-zero-or-more - 2.3.1.5 Zero-Or-More Paths
+
+constraints-section / property-shapes / property-paths / property-path-one-or-more - 2.3.1.6 One-Or-More Paths
+
+constraints-section / property-shapes / property-paths / property-path-zero-or-one - 2.3.1.7 Zero-Or-One Paths
+
+constraints-section / property-shapes / nonValidation - 2.3.2 Non-Validating Property Shape Characteristics
+
+constraints-section / property-shapes / nonValidation / name - 2.3.2.1 sh:name and sh:description
+
+constraints-section / property-shapes / nonValidation / order - 2.3.2.2 sh:order
+
+constraints-section / property-shapes / nonValidation / group - 2.3.2.3 sh:group
+
+constraints-section / property-shapes / nonValidation / defaultValue - 2.3.2.4 sh:defaultValue
+
+>> example-shapes:
+ex:PersonFormShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:firstName ;
+		sh:name "first name" ;
+		sh:description "The person's given name(s)" ;
+		sh:order 0 ;
+		sh:group ex:NameGroup ;
+	] ;
+	sh:property [
+		sh:path ex:lastName ;
+		sh:name "last name" ;
+		sh:description "The person's last name" ;
+		sh:order 1 ;
+		sh:group ex:NameGroup ;
+	] ;
+	sh:property [
+		sh:path ex:streetAddress ;
+		sh:name "street address" ;
+		sh:description "The street address including number" ;
+		sh:order 11 ;
+		sh:group ex:AddressGroup ;
+	] ;
+	sh:property [
+		sh:path ex:locality ;
+		sh:name "locality" ;
+		sh:description "The suburb, city or town of the address" ;
+		sh:order 12 ;
+		sh:group ex:AddressGroup ;
+	] ;
+	sh:property [
+		sh:path ex:postalCode ;
+		sh:name "postal code" ;
+		sh:name "zip code"@en-US ;
+		sh:description "The postal code of the locality" ;
+		sh:order 13 ;
+		sh:group ex:AddressGroup ;
+	] .
+
+ex:NameGroup
+	a sh:PropertyGroup ;
+	sh:order 0 ;
+	rdfs:label "Name" .
+
+ex:AddressGroup
+	a sh:PropertyGroup ;
+	sh:order 1 ;
+	rdfs:label "Address" .
+
+validation - 3. Validation and Graphs
+
+validation / shapes-graph - 3.1 Shapes Graph
+
+validation / data-graph - 3.2 Data Graph
+
+validation / sh-shapes-graph - 3.3 Linking to shapes graphs (sh:shapesGraph)
+
+>> example-data:
+<http://example.com/myDataGraph>
+	sh:shapesGraph ex:graph-shapes1 ;
+	sh:shapesGraph ex:graph-shapes2 .
+
+validation / validation-definition - 3.4 Validation
+
+validation / validation-definition / failures - 3.4.1 Failures
+
+validation / validation-definition / ill-formed-shape-graphs - 3.4.2 Handling of Ill-formed Shapes Graphs
+
+validation / validation-definition / shapes-recursion - 3.4.3 Handling of Recursive Shapes
+
+validation / conformance-definition - 3.5 Conformance Checking
+
+validation / validation-report - 3.6 Validation Report
+
+>> example-results:
+[ 	a sh:ValidationReport ;
+	sh:conforms true ;
+] .
+
+>> example-results:
+[	a sh:ValidationReport ;
+	sh:conforms false ;
+	sh:result [
+		a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:Bob ;
+		sh:resultPath ex:age ;
+		sh:value "twenty two" ;
+		sh:resultMessage "ex:age expects a literal of datatype xsd:integer." ;
+		sh:sourceConstraintComponent sh:DatatypeConstraintComponent ;
+		sh:sourceShape ex:PersonShape-age ;
+	]
+] .
+
+validation / validation-report / results-validation-report - 3.6.1 Validation Report (sh:ValidationReport)
+
+validation / validation-report / results-validation-report / conforms - 3.6.1.1 Conforms (sh:conforms)
+
+validation / validation-report / results-validation-report / result - 3.6.1.2 Result (sh:result)
+
+validation / validation-report / results-validation-report / shapesGraphWellFormed - 3.6.1.3 Syntax Checking of Shapes Graph (sh:shapesGraphWellFormed)
+
+validation / validation-report / results-validation-result - 3.6.2 Validation Result (sh:ValidationResult)
+
+validation / validation-report / results-validation-result / results-focus-node - 3.6.2.1 Focus node (sh:focusNode)
+
+validation / validation-report / results-validation-result / results-path - 3.6.2.2 Path (sh:resultPath)
+
+validation / validation-report / results-validation-result / results-value - 3.6.2.3 Value (sh:value)
+
+validation / validation-report / results-validation-result / results-source-shape - 3.6.2.4 Source (sh:sourceShape)
+
+validation / validation-report / results-validation-result / results-source-constraint-component - 3.6.2.5 Constraint Component (sh:sourceConstraintComponent)
+
+validation / validation-report / results-validation-result / results-detail - 3.6.2.6 Details (sh:detail)
+
+validation / validation-report / results-validation-result / results-message - 3.6.2.7 Message (sh:resultMessage)
+
+validation / validation-report / results-validation-result / results-severity - 3.6.2.8 Severity (sh:resultSeverity)
+
+validation / value-nodes - 3.7 Value Nodes
+
+core-components - 4. Core Constraint Components
+
+core-components / core-components-value-type - 4.1 Value Type Constraint Components
+
+core-components / core-components-value-type / ClassConstraintComponent - 4.1.1 sh:class
+
+>> def-sparql-body:
+ASK {
+	$value rdf:type/rdfs:subClassOf* $class .
+}
+
+>> example-shapes:
+ex:ClassExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob, ex:Alice, ex:Carol ;
+	sh:property [
+		sh:path ex:address ;
+		sh:class ex:PostalAddress ;
+	] .
+
+>> example-data:
+ex:Alice a ex:Person .
+ex:Bob ex:address [ a ex:PostalAddress ; ex:city ex:Berlin ] .
+ex:Carol ex:address [ ex:city ex:Cairo ] .
+
+core-components / core-components-value-type / DatatypeConstraintComponent - 4.1.2 sh:datatype
+
+>> example-shapes:
+ex:DatatypeExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice, ex:Bob, ex:Carol ;
+	sh:property [
+		sh:path ex:age ;
+		sh:datatype xsd:integer ;
+	] .
+
+>> example-data:
+ex:Alice ex:age "23"^^xsd:integer .
+ex:Bob ex:age "twenty two" .
+ex:Carol ex:age "23"^^xsd:int .
+
+core-components / core-components-value-type / NodeKindConstraintComponent - 4.1.3 sh:nodeKind
+
+>> def-sparql-body:
+ASK {
+	FILTER ((isIRI($value) && $nodeKind IN ( sh:IRI, sh:BlankNodeOrIRI, sh:IRIOrLiteral ) ) ||
+		(isLiteral($value) && $nodeKind IN ( sh:Literal, sh:BlankNodeOrLiteral, sh:IRIOrLiteral ) ) ||
+		(isBlank($value)   && $nodeKind IN ( sh:BlankNode, sh:BlankNodeOrIRI, sh:BlankNodeOrLiteral ) )) .
+}
+
+>> example-shapes:
+ex:NodeKindExampleShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf ex:knows ;
+	sh:nodeKind sh:IRI .
+
+>> example-data:
+ex:Bob ex:knows ex:Alice .
+	ex:Alice ex:knows "Bob" .
+
+core-components / core-components-count - 4.2 Cardinality Constraint Components
+
+core-components / core-components-count / MinCountConstraintComponent - 4.2.1 sh:minCount
+
+>> example-shapes:
+ex:MinCountExampleShape
+	a sh:PropertyShape ;
+	sh:targetNode ex:Alice, ex:Bob ;
+	sh:path ex:name ;
+	sh:minCount 1 .
+
+>> example-data:
+ex:Alice ex:name "Alice" .
+ex:Bob ex:givenName "Bob"@en .
+
+core-components / core-components-count / MaxCountConstraintComponent - 4.2.2 sh:maxCount
+
+>> example-shapes:
+ex:MaxCountExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob ;
+	sh:property [
+		sh:path ex:birthDate ;
+		sh:maxCount 1 ;
+	] .
+
+>> example-data:
+ex:Bob ex:birthDate "May 5th 1990" .
+
+core-components / core-components-range - 4.3 Value Range Constraint Components
+
+>> example-shapes:
+ex:NumericRangeExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob, ex:Alice, ex:Ted ;
+	sh:property [
+		sh:path ex:age ;
+		sh:minInclusive 0 ;
+		sh:maxInclusive 150 ;
+	] .
+
+>> example-data:
+ex:Bob ex:age 23 .
+ex:Alice ex:age 220 .
+ex:Ted ex:age "twenty one" .
+
+core-components / core-components-range / MinExclusiveConstraintComponent - 4.3.1 sh:minExclusive
+
+>> def-sparql-body:
+ASK {
+	FILTER ($minExclusive < $value)
+}
+
+core-components / core-components-range / MinInclusiveConstraintComponent - 4.3.2 sh:minInclusive
+
+>> def-sparql-body:
+ASK {
+	FILTER ($minInclusive <= $value)
+}
+
+core-components / core-components-range / MaxExclusiveConstraintComponent - 4.3.3 sh:maxExclusive
+
+>> def-sparql-body:
+ASK {
+	FILTER ($maxExclusive > $value)
+}
+
+core-components / core-components-range / MaxInclusiveConstraintComponent - 4.3.4 sh:maxInclusive
+
+>> def-sparql-body:
+ASK {
+	FILTER ($maxInclusive >= $value)
+}
+
+core-components / core-components-string - 4.4 String-based Constraint Components
+
+core-components / core-components-string / MinLengthConstraintComponent - 4.4.1 sh:minLength
+
+>> def-sparql-body:
+ASK {
+	FILTER (STRLEN(str($value)) >= $minLength) .
+}
+
+core-components / core-components-string / MaxLengthConstraintComponent - 4.4.2 sh:maxLength
+
+>> def-sparql-body:
+ASK {
+	FILTER (STRLEN(str($value)) <= $maxLength) .
+}
+
+>> example-shapes:
+ex:PasswordExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob, ex:Alice ;
+	sh:property [
+		sh:path ex:password ;
+		sh:minLength 8 ;
+		sh:maxLength 10 ;
+	] .
+
+>> example-data:
+ex:Bob ex:password "123456789" .
+ex:Alice ex:password "1234567890ABC" .
+
+core-components / core-components-string / PatternConstraintComponent - 4.4.3 sh:pattern
+
+>> def-sparql-body:
+ASK {
+	FILTER (!isBlank($value) && IF(bound($flags), regex(str($value), $pattern, $flags), regex(str($value), $pattern)))
+}
+
+>> example-shapes:
+ex:PatternExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob, ex:Alice, ex:Carol ;
+	sh:property [
+		sh:path ex:bCode ;
+		sh:pattern "^B" ;    # starts with 'B'
+		sh:flags "i" ;       # Ignore case
+	] .
+
+>> example-data:
+ex:Bob ex:bCode "b101" .
+ex:Alice ex:bCode "B102" .
+ex:Carol ex:bCode "C103" .
+
+core-components / core-components-string / LanguageInConstraintComponent - 4.4.4 sh:languageIn
+
+>> example-shapes:
+ex:NewZealandLanguagesShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Mountain, ex:Berg ;
+	sh:property [
+		sh:path ex:prefLabel ;
+		sh:languageIn ( "en" "mi" ) ;
+	] .
+
+>> example-data:
+ex:Mountain
+	ex:prefLabel "Mountain"@en ;
+	ex:prefLabel "Hill"@en-NZ ;
+	ex:prefLabel "Maunga"@mi .
+
+ex:Berg
+	ex:prefLabel "Berg" ;
+	ex:prefLabel "Berg"@de ;
+	ex:prefLabel ex:BergLabel .
+
+core-components / core-components-string / UniqueLangConstraintComponent - 4.4.5 sh:uniqueLang
+
+>> example-shapes:
+ex:UniqueLangExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice, ex:Bob ;
+	sh:property [
+		sh:path ex:label ;
+		sh:uniqueLang true ;
+	] .
+
+>> example-data:
+ex:Alice
+	ex:label "Alice" ;
+	ex:label "Alice"@en ;
+	ex:label "Alice"@fr .
+
+ex:Bob
+	ex:label "Bob"@en ;
+	ex:label "Bobby"@en .
+
+core-components / core-components-property-pairs - 4.5 Property Pair Constraint Components
+
+core-components / core-components-property-pairs / EqualsConstraintComponent - 4.5.1 sh:equals
+
+>> example-shapes:
+ex:EqualExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob ;
+	sh:property [
+		sh:path ex:firstName ;
+		sh:equals ex:givenName ;
+	] .
+
+>> example-data:
+ex:Bob
+	ex:firstName "Bob" ;
+	ex:givenName "Bob" .
+
+core-components / core-components-property-pairs / DisjointConstraintComponent - 4.5.2 sh:disjoint
+
+>> def-sparql-body:
+SELECT DISTINCT $this ?value
+WHERE {
+	$this $PATH ?value .
+	$this $disjoint ?value .
+}
+
+>> example-shapes:
+ex:DisjointExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:USA, ex:Germany ;
+	sh:property [
+		sh:path ex:prefLabel ;
+		sh:disjoint ex:altLabel ;
+	] .
+
+>> example-data:
+ex:USA
+	ex:prefLabel "USA" ;
+	ex:altLabel "United States" .
+
+ex:Germany
+	ex:prefLabel "Germany" ;
+	ex:altLabel "Germany" .
+
+core-components / core-components-property-pairs / LessThanConstraintComponent - 4.5.3 sh:lessThan
+
+>> def-sparql-body:
+SELECT $this ?value
+WHERE {
+	$this $PATH ?value .
+	$this $lessThan ?otherValue .
+	BIND (?value < ?otherValue AS ?result) .
+	FILTER (!bound(?result) || !(?result)) .
+}
+
+>> example-shapes:
+ex:LessThanExampleShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:startDate ;
+		sh:lessThan ex:endDate ;
+	] .
+
+core-components / core-components-property-pairs / LessThanOrEqualsConstraintComponent - 4.5.4 sh:lessThanOrEquals
+
+>> def-sparql-body:
+SELECT $this ?value
+WHERE {
+	$this $PATH ?value .
+	$this $lessThan ?otherValue .
+	BIND (?value <= ?otherValue AS ?result) .
+	FILTER (!bound(?result) || !(?result)) .
+}
+
+core-components / core-components-logical - 4.6 Logical Constraint Components
+
+core-components / core-components-logical / NotConstraintComponent - 4.6.1 sh:not
+
+>> example-shapes:
+ex:NotExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:InvalidInstance1 ;
+	sh:not [
+		a sh:PropertyShape ;
+		sh:path ex:property ;
+		sh:minCount 1 ;
+	] .
+
+>> example-data:
+ex:InvalidInstance1 ex:property "Some value" .
+
+core-components / core-components-logical / AndConstraintComponent - 4.6.2 sh:and
+
+>> example-shapes:
+ex:SuperShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:property ;
+		sh:minCount 1 ;
+	] .
+
+ex:ExampleAndShape
+	a sh:NodeShape ;
+	sh:targetNode ex:ValidInstance, ex:InvalidInstance ;
+	sh:and (
+		ex:SuperShape
+		[
+			sh:path ex:property ;
+			sh:maxCount 1 ;
+		]
+	) .
+
+>> example-data:
+ex:ValidInstance
+	ex:property "One" .
+
+# Invalid: more than one property
+ex:InvalidInstance
+	ex:property "One" ;
+	ex:property "Two" .
+
+core-components / core-components-logical / OrConstraintComponent - 4.6.3 sh:or
+
+>> example-shapes:
+ex:OrConstraintExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Bob ;
+	sh:or (
+		[
+			sh:path ex:firstName ;
+			sh:minCount 1 ;
+		]
+		[
+			sh:path ex:givenName ;
+			sh:minCount 1 ;
+		]
+	) .
+
+>> example-data:
+ex:Bob ex:firstName "Robert" .
+
+>> example-shapes:
+ex:PersonAddressShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Person ;
+	sh:property [
+		sh:path ex:address ;
+		sh:or (
+			[
+				sh:datatype xsd:string ;
+			]
+			[
+				sh:class ex:Address ;
+			]
+		)
+	] .
+
+>> example-data:
+ex:Bob ex:address "123 Prinzengasse, Vaduz, Liechtenstein" .
+
+core-components / core-components-logical / XoneConstraintComponent - 4.6.4 sh:xone
+
+>> example-shapes:
+ex:XoneConstraintExampleShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Person ;
+	sh:xone (
+		[
+			sh:property [
+				sh:path ex:fullName ;
+				sh:minCount 1 ;
+			]
+		]
+		[
+			sh:property [
+				sh:path ex:firstName ;
+				sh:minCount 1 ;
+			] ;
+			sh:property [
+				sh:path ex:lastName ;
+				sh:minCount 1 ;
+			]
+		]
+	) .
+
+>> example-data:
+ex:Bob a ex:Person ;
+	ex:firstName "Robert" ; 
+	ex:lastName "Coin" .
+
+ex:Carla a ex:Person ;
+	ex:fullName "Carla Miller" .
+	
+ex:Dory a ex:Person ;
+	ex:firstName "Dory" ;
+	ex:lastName "Dunce" ;
+	ex:fullName "Dory Dunce" .
+
+core-components / core-components-shape - 4.7 Shape-based Constraint Components
+
+core-components / core-components-shape / NodeConstraintComponent - 4.7.1 sh:node
+
+>> example-shapes:
+ex:AddressShape
+	a sh:NodeShape ;
+	sh:property [
+		sh:path ex:postalCode ;
+		sh:datatype xsd:string ;
+		sh:maxCount 1 ;
+	] .
+
+ex:PersonShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Person ;
+	sh:property [   # _:b1
+		sh:path ex:address ;
+		sh:minCount 1 ;
+		sh:node ex:AddressShape ;
+	] .
+
+>> example-data:
+ex:Bob a ex:Person ;
+	ex:address ex:BobsAddress .
+	
+ex:BobsAddress
+	ex:postalCode "1234" .
+
+ex:Reto a ex:Person ;
+	ex:address ex:RetosAddress .
+
+ex:RetosAddress
+	ex:postalCode 5678 .
+
+>> example-results:
+[	a sh:ValidationReport ;
+	sh:conforms false ;
+	sh:result [
+		a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:Reto ;
+		sh:resultPath ex:address ;
+		sh:value ex:RetosAddress ;
+		sh:resultMessage "Value does not conform to shape ex:AddressShape." ;
+		sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+		sh:sourceShape _:b1 ;
+	]
+] .
+
+core-components / core-components-shape / PropertyConstraintComponent - 4.7.2 sh:property
+
+core-components / core-components-shape / QualifiedValueShapeConstraintComponent - 4.7.3 sh:qualifiedValueShape, sh:qualifiedMinCount, sh:qualifiedMaxCount
+
+>> example-shapes:
+ex:QualifiedValueShapeExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:QualifiedValueShapeExampleValidResource ;
+	sh:property [
+		sh:path ex:parent ;
+		sh:minCount 2 ;
+		sh:maxCount 2 ;
+		sh:qualifiedValueShape [
+			sh:path ex:gender ;
+			sh:hasValue ex:female ;
+		] ;
+		sh:qualifiedMinCount 1 ;
+	] .
+
+>> example-data:
+ex:QualifiedValueShapeExampleValidResource
+	ex:parent ex:John ;
+	ex:parent ex:Jane .
+
+ex:John
+	ex:gender ex:male .
+
+ex:Jane
+	ex:gender ex:female .
+
+>> example-shapes:
+ex:HandShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Hand ;
+	sh:property [
+		sh:path ex:digit ;
+		sh:maxCount 5 ;
+	] ;
+	sh:property [
+		sh:path ex:digit ;
+		sh:qualifiedValueShape [ sh:class ex:Thumb ] ;
+		sh:qualifiedValueShapesDisjoint true ;
+		sh:qualifiedMinCount 1 ;
+		sh:qualifiedMaxCount 1 ;
+	] ;
+	sh:property [
+		sh:path ex:digit ;
+		sh:qualifiedValueShape [ sh:class ex:Finger ] ;
+		sh:qualifiedValueShapesDisjoint true ;
+		sh:qualifiedMinCount 4 ;
+		sh:qualifiedMaxCount 4 ;
+	] .
+
+core-components / core-components-others - 4.8 Other Constraint Components
+
+core-components / core-components-others / ClosedConstraintComponent - 4.8.1 sh:closed, sh:ignoredProperties
+
+>> example-shapes:
+ex:ClosedShapeExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice, ex:Bob ;
+	sh:closed true ;
+	sh:ignoredProperties (rdf:type) ;
+	sh:property [
+		sh:path ex:firstName ;
+	] ;
+	sh:property [
+		sh:path ex:lastName ;
+	] .
+
+>> example-data:
+ex:Alice
+	ex:firstName "Alice" .
+
+ex:Bob
+	ex:firstName "Bob" ;
+	ex:middleInitial "J" .
+
+core-components / core-components-others / HasValueConstraintComponent - 4.8.2 sh:hasValue
+
+>> example-shapes:
+ex:StanfordGraduate
+	a sh:NodeShape ;
+	sh:targetNode ex:Alice ;
+	sh:property [
+		sh:path ex:alumniOf ;
+		sh:hasValue ex:Stanford ;
+	] .
+
+>> example-data:
+ex:Alice
+	ex:alumniOf ex:Harvard ;
+	ex:alumniOf ex:Stanford .
+
+core-components / core-components-others / InConstraintComponent - 4.8.3 sh:in
+
+>> def-sparql-body:
+ASK {
+	GRAPH $shapesGraph {
+		$in (rdf:rest*)/rdf:first $value .
+	}
+}
+
+>> example-shapes:
+ex:InExampleShape
+	a sh:NodeShape ;
+	sh:targetNode ex:RainbowPony ;
+	sh:property [
+		sh:path ex:color ;
+		sh:in ( ex:Pink ex:Purple ) ;
+	] .
+
+>> example-data:
+ex:RainbowPony ex:color ex:Pink .
+
+sparql-constraints - 5. SPARQL-based Constraints
+
+sparql-constraints / sparql-constraints-example - 5.1 An Example SPARQL-based Constraint
+
+>> example-data:
+ex:ValidCountry a ex:Country ;
+	ex:germanLabel "Spanien"@de .
+  
+ex:InvalidCountry a ex:Country ;
+	ex:germanLabel "Spain"@en .
+
+>> example-shapes - example-sparql-constraint:
+ex:LanguageExampleShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Country ;
+	sh:sparql [
+		a sh:SPARQLConstraint ;   # This triple is optional
+		sh:message "Values are literals with German language tag." ;
+		sh:prefixes ex: ;
+		sh:select """
+			SELECT $this (ex:germanLabel AS ?path) ?value
+			WHERE {
+				$this ex:germanLabel ?value .
+				FILTER (!isLiteral(?value) || !langMatches(lang(?value), "de"))
+			}
+			""" ;
+	] .
+
+>> example-results:
+[	a sh:ValidationReport ;
+	sh:conforms false ;
+	sh:result [
+		a sh:ValidationResult ;
+		sh:resultSeverity sh:Violation ;
+		sh:focusNode ex:InvalidCountry ;
+		sh:resultPath ex:germanLabel ;
+		sh:value "Spain"@en ;
+		sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+		sh:sourceShape ex:LanguageExampleShape ;
+		# ...
+	]
+] .
+
+>> example-shapes - example-sparql-constraint-in-property-shape:
+ex:LanguageExamplePropertyShape
+	a sh:PropertyShape ;
+	sh:targetClass ex:Country ;
+	sh:path ex:germanLabel ;
+	sh:sparql [
+		a sh:SPARQLConstraint ;   # This triple is optional
+		sh:message "Values are literals with German language tag." ;
+		sh:prefixes ex: ;
+		sh:select """
+			SELECT $this ?value
+			WHERE {
+				$this $PATH ?value .
+				FILTER (!isLiteral(?value) || !langMatches(lang(?value), "de"))
+			}
+			""" ;
+	] .
+
+sparql-constraints / sparql-constraints-syntax - 5.2 Syntax of SPARQL-based Constraints
+
+sparql-constraints / sparql-constraints-syntax / sparql-prefixes - 5.2.1 Prefix Declarations for SPARQL Queries
+
+>> example-shapes:
+ex:
+	a owl:Ontology ;
+	owl:imports sh: ;
+	sh:declare [
+		sh:prefix "ex" ;
+		sh:namespace "http://example.com/ns#"^^xsd:anyURI ;
+	] ;
+	sh:declare [
+		sh:prefix "schema" ;
+		sh:namespace "http://schema.org/"^^xsd:anyURI ;
+	] .
+
+sparql-constraints / sparql-constraints-validation - 5.3 Validation with SPARQL-based Constraints
+
+sparql-constraints / sparql-constraints-validation / sparql-constraints-prebound - 5.3.1 Pre-bound Variables in SPARQL Constraints ($this, $shapesGraph, $currentShape)
+
+sparql-constraints / sparql-constraints-validation / sparql-constraints-variables - 5.3.2 Mapping of Solution Bindings to Result Properties
+
+sparql-constraint-components - 6. SPARQL-based Constraint Components
+
+sparql-constraint-components / an-example-sparql-based-constraint-component - 6.1 An Example SPARQL-based Constraint Component
+
+>> example-shapes:
+sh:PatternConstraintComponent
+	a sh:ConstraintComponent ;
+	sh:parameter [
+		sh:path sh:pattern ;
+	] ;
+	sh:parameter [
+		sh:path sh:flags ;
+		sh:optional true ;
+	] ;
+	sh:validator shimpl:hasPattern .
+
+shimpl:hasPattern
+	a sh:SPARQLAskValidator ;
+	sh:message "Value does not match pattern {$pattern}" ;
+	sh:ask """
+		ASK { 
+			FILTER (!isBlank($value) && 
+				IF(bound($flags), regex(str($value), $pattern, $flags), regex(str($value), $pattern)))
+		}""" .
+
+sparql-constraint-components / constraint-components-syntax - 6.2 Syntax of SPARQL-based Constraint Components
+
+sparql-constraint-components / constraint-components-syntax / constraint-components-parameters - 6.2.1 Parameter Declarations (sh:parameter)
+
+sparql-constraint-components / constraint-components-syntax / labelTemplate - 6.2.2 Label Templates (sh:labelTemplate)
+
+sparql-constraint-components / constraint-components-syntax / constraint-components-validators - 6.2.3 Validators
+
+sparql-constraint-components / constraint-components-syntax / constraint-components-validators / SPARQLSelectValidator - 6.2.3.1 SELECT-based Validators
+
+>> example-shapes:
+ex:LanguageConstraintComponentUsingSELECT
+	a sh:ConstraintComponent ;
+	rdfs:label "Language constraint component" ;
+	sh:parameter [
+		sh:path ex:lang ;
+		sh:datatype xsd:string ;
+		sh:minLength 2 ;
+		sh:name "language" ;
+		sh:description "The language tag, e.g. \"de\"." ;
+	] ;
+	sh:labelTemplate "Values are literals with language \"{$lang}\"" ;
+	sh:propertyValidator [
+		a sh:SPARQLSelectValidator ;
+		sh:message "Values are literals with language \"{?lang}\"" ;
+		sh:select """
+			SELECT DISTINCT $this ?value
+			WHERE {
+				$this $PATH ?value .
+				FILTER (!isLiteral(?value) || !langMatches(lang(?value), $lang))
+			}
+			"""
+	] .
+
+>> example-shapes:
+ex:LanguageExampleShape
+	a sh:NodeShape ;
+	sh:targetClass ex:Country ;
+	sh:property [
+		sh:path ex:germanLabel ;
+		ex:lang "de" ;
+	] ;
+	sh:property [
+		sh:path ex:englishLabel ;
+		ex:lang "en" ;
+	] .
+
+sparql-constraint-components / constraint-components-syntax / constraint-components-validators / SPARQLAskValidator - 6.2.3.2 ASK-based Validators
+
+>> example-shapes:
+ex:LanguageConstraintComponentUsingASK
+	a sh:ConstraintComponent ;
+	rdfs:label "Language constraint component" ;
+	sh:parameter [
+		sh:path ex:lang ;
+		sh:datatype xsd:string ;
+		sh:minLength 2 ;
+		sh:name "language" ;
+		sh:description "The language tag, e.g. \"de\"." ;
+	] ;
+	sh:labelTemplate "Values are literals with language \"{$lang}\"" ;
+	sh:validator ex:hasLang .
+	
+ex:hasLang
+	a sh:SPARQLAskValidator ;
+	sh:message "Values are literals with language \"{$lang}\"" ;
+	sh:ask """
+		ASK {
+			FILTER (isLiteral($value) && langMatches(lang($value), $lang))
+		}
+		""" .
+
+sparql-constraint-components / constraint-components-validation - 6.3 Validation with SPARQL-based Constraint Components
+
+pre-binding - A. Pre-binding of Variables in SPARQL Queries
+
+syntax-rules - B. Summary of SHACL Syntax Rules
+
+shacl-shacl - C. SHACL Shapes to Validate Shapes Graphs
+
+>> shapes - shacl-shacl-pre:
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix shsh: <http://www.w3.org/ns/shacl-shacl#> .
+
+shsh:
+	rdfs:label "SHACL for SHACL"@en ;
+	rdfs:comment "This shapes graph can be used to validate SHACL shapes graphs against a subset of the SHACL syntax rules."@en ;
+	sh:declare [
+		sh:prefix "shsh" ;
+		sh:namespace "http://www.w3.org/ns/shacl-shacl#" ;
+	] .
+
+	
+shsh:ListShape
+	a sh:NodeShape ;
+	rdfs:label "List shape"@en ;
+	rdfs:comment "A shape describing well-formed RDF lists. Currently does not check for non-recursion. This could be expressed using SHACL-SPARQL."@en ;
+	rdfs:seeAlso <https://www.w3.org/TR/shacl/#syntax-rule-SHACL-list> ;
+	sh:property [
+		sh:path [ sh:zeroOrMorePath rdf:rest ] ;
+		rdfs:comment "Each list member (including this node) must be have the shape shsh:ListNodeShape."@en ;
+		sh:hasValue rdf:nil ;
+		sh:node shsh:ListNodeShape ;
+	] .
+
+shsh:ListNodeShape
+	a sh:NodeShape ;
+	rdfs:label "List node shape"@en ;
+	rdfs:comment "Defines constraints on what it means for a node to be a node within a well-formed RDF list. Note that this does not check whether the rdf:rest items are also well-formed lists as this would lead to unsupported recursion."@en ;
+	sh:or ( [
+				sh:hasValue rdf:nil ;
+        		sh:property [
+					sh:path rdf:first ;
+					sh:maxCount 0 ;
+				] ;
+				sh:property [
+					sh:path rdf:rest ;
+					sh:maxCount 0 ;
+				] ;
+			]
+			[
+				sh:not [ sh:hasValue rdf:nil ] ;
+				sh:property [
+					sh:path rdf:first ;
+					sh:maxCount 1 ;
+					sh:minCount 1 ;
+				] ;
+				sh:property [
+					sh:path rdf:rest ;
+					sh:maxCount 1 ;
+					sh:minCount 1 ;
+				] ;
+			] ) .
+
+shsh:ShapeShape
+	a sh:NodeShape ;
+	rdfs:label "Shape shape"@en ;
+	rdfs:comment "A shape that can be used to validate syntax rules for other shapes."@en ;
+	
+	# See https://www.w3.org/TR/shacl/#shapes for what counts as a shape
+	sh:targetClass sh:NodeShape ;
+	sh:targetClass sh:PropertyShape ;
+	sh:targetSubjectsOf sh:targetClass, sh:targetNode, sh:targetObjectsOf, sh:targetSubjectsOf ;
+	sh:targetSubjectsOf sh:and, sh:class, sh:closed, sh:datatype, sh:disjoint, sh:equals, sh:flags, sh:hasValue,
+		sh:ignoredProperties, sh:in, sh:languageIn, sh:lessThan, sh:lessThanOrEquals, sh:maxCount, sh:maxExclusive,
+		sh:maxInclusive, sh:maxLength, sh:minCount, sh:minExclusive, sh:minInclusive, sh:minLength, sh:node, sh:nodeKind,
+		sh:not, sh:or, sh:pattern, sh:property, sh:qualifiedMaxCount, sh:qualifiedMinCount, sh:qualifiedValueShape,
+		sh:qualifiedValueShape, sh:qualifiedValueShapesDisjoint, sh:qualifiedValueShapesDisjoint, sh:uniqueLang, sh:xone ;
+
+	sh:targetObjectsOf sh:node ;        # node-node
+	sh:targetObjectsOf sh:not ;         # not-node
+	sh:targetObjectsOf sh:property ;    # property-node
+	sh:targetObjectsOf sh:qualifiedValueShape ; # qualifiedValueShape-node
+
+	# Shapes are either node shapes or property shapes
+	sh:xone ( shsh:NodeShapeShape shsh:PropertyShapeShape ) ;
+
+	sh:property [
+		sh:path sh:targetNode ;
+		sh:nodeKind	sh:IRIOrLiteral ;   # targetNode-nodeKind
+	] ; 
+	sh:property [
+		sh:path sh:targetClass ;
+		sh:nodeKind sh:IRI ;            # targetClass-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:targetSubjectsOf ;
+		sh:nodeKind sh:IRI ;            # targetSubjectsOf-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:targetObjectsOf ;
+		sh:nodeKind sh:IRI ;            # targetObjectsOf-nodeKind
+	] ;
+	sh:or ( [ sh:not [ 
+				sh:class rdfs:Class ; 
+				sh:or ( [ sh:class sh:NodeShape ] [ sh:class sh:PropertyShape ] )
+			] ]
+			[ sh:nodeKind sh:IRI ]
+		  ) ;                           # implicit-targetClass-nodeKind
+	
+	sh:property [
+		sh:path sh:severity ;
+		sh:maxCount 1 ;                 # severity-maxCount
+		sh:nodeKind sh:IRI ;            # severity-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:message ;
+		sh:or ( [ sh:datatype xsd:string ] [ sh:datatype rdf:langString ] ) ;   # message-datatype
+	] ;
+	sh:property [
+		sh:path sh:deactivated ;
+		sh:maxCount 1 ;                 # deactivated-maxCount
+		sh:in ( true false ) ;          # deactivated-datatype
+	] ;
+
+	sh:property [
+		sh:path sh:and ;
+		sh:node shsh:ListShape ;        # and-node
+	] ;
+	sh:property [
+		sh:path sh:class ;
+		sh:nodeKind sh:IRI ;            # class-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:closed ;
+		sh:datatype xsd:boolean ;       # closed-datatype
+		sh:maxCount 1 ;                 # multiple-parameters
+	] ;
+	sh:property [
+		sh:path sh:ignoredProperties ;
+		sh:node shsh:ListShape ;        # ignoredProperties-node
+		sh:maxCount 1 ;                 # multiple-parameters
+	] ;
+	sh:property [
+		sh:path ( sh:ignoredProperties [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;
+		sh:nodeKind sh:IRI ;            # ignoredProperties-members-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:datatype ;
+		sh:nodeKind sh:IRI ;            # datatype-nodeKind
+		sh:maxCount 1 ;                 # datatype-maxCount
+	] ;
+	sh:property [
+		sh:path sh:disjoint ;
+		sh:nodeKind sh:IRI ;            # disjoint-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:equals ;
+		sh:nodeKind sh:IRI ;            # equals-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:in ;
+		sh:maxCount 1 ;                 # in-maxCount		
+		sh:node shsh:ListShape ;        # in-node
+	] ;
+	sh:property [
+		sh:path sh:languageIn ;
+		sh:maxCount 1 ;                 # languageIn-maxCount
+		sh:node shsh:ListShape ;        # languageIn-node
+	] ;
+	sh:property [
+		sh:path ( sh:languageIn [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;
+		sh:datatype xsd:string ;        # languageIn-members-datatype
+	] ;
+	sh:property [
+		sh:path sh:lessThan ;
+		sh:nodeKind sh:IRI ;            # lessThan-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:lessThanOrEquals ;
+		sh:nodeKind sh:IRI ;            # lessThanOrEquals-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:maxCount ;
+		sh:datatype xsd:integer ;       # maxCount-datatype
+		sh:maxCount 1 ;                 # maxCount-maxCount
+	] ;
+	sh:property [
+		sh:path sh:maxExclusive ;
+		sh:maxCount 1 ;                 # maxExclusive-maxCount
+		sh:nodeKind sh:Literal ;        # maxExclusive-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:maxInclusive ;
+		sh:maxCount 1 ;                 # maxInclusive-maxCount
+		sh:nodeKind sh:Literal ;        # maxInclusive-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:maxLength ;
+		sh:datatype xsd:integer ;       # maxLength-datatype
+		sh:maxCount 1 ;                 # maxLength-maxCount
+	] ;
+	sh:property [
+		sh:path sh:minCount ;
+		sh:datatype xsd:integer ;       # minCount-datatype
+		sh:maxCount 1 ;                 # minCount-maxCount
+	] ;
+	sh:property [
+		sh:path sh:minExclusive ;
+		sh:maxCount 1 ;                 # minExclusive-maxCount
+		sh:nodeKind sh:Literal ;        # minExclusive-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:minInclusive ;
+		sh:maxCount 1 ;                 # minInclusive-maxCount
+		sh:nodeKind sh:Literal ;        # minInclusive-nodeKind
+	] ;
+	sh:property [
+		sh:path sh:minLength ;
+		sh:datatype xsd:integer ;       # minLength-datatype
+		sh:maxCount 1 ;                 # minLength-maxCount
+	] ;
+	sh:property [
+		sh:path sh:nodeKind ;
+		sh:in ( sh:BlankNode sh:IRI sh:Literal sh:BlankNodeOrIRI sh:BlankNodeOrLiteral sh:IRIOrLiteral ) ;	# nodeKind-in
+		sh:maxCount 1 ;                 # nodeKind-maxCount
+	] ;
+	sh:property [
+		sh:path sh:or ;
+		sh:node shsh:ListShape ;        # or-node
+	] ;
+	sh:property [
+		sh:path sh:pattern ;
+		sh:datatype xsd:string ;        # pattern-datatype
+		sh:maxCount 1 ;                 # multiple-parameters
+		# Not implemented: syntax rule pattern-regex
+	] ;
+	sh:property [
+		sh:path sh:flags ;
+		sh:datatype xsd:string ;        # flags-datatype
+		sh:maxCount 1 ;                 # multiple-parameters
+	] ;
+	sh:property [
+		sh:path sh:qualifiedMaxCount ;
+		sh:datatype xsd:integer ;       # qualifiedMaxCount-datatype
+		sh:maxCount 1 ;                 # multiple-parameters
+	] ;
+	sh:property [
+		sh:path sh:qualifiedMinCount ;
+		sh:datatype xsd:integer ;       # qualifiedMinCount-datatype
+		sh:maxCount 1 ;                 # multiple-parameters
+	] ;
+	sh:property [
+		sh:path sh:qualifiedValueShape ;
+		sh:maxCount 1 ;                 # multiple-parameters
+	] ;
+	sh:property [
+		sh:path sh:qualifiedValueShapesDisjoint ;
+		sh:datatype xsd:boolean ;       # qualifiedValueShapesDisjoint-datatype
+		sh:maxCount 1 ;                 # multiple-parameters
+	] ;
+	sh:property [
+		sh:path sh:uniqueLang ;
+		sh:datatype xsd:boolean ;       # uniqueLang-datatype
+		sh:maxCount 1 ;                 # uniqueLang-maxCount
+	] ;
+	sh:property [
+		sh:path sh:xone ;
+		sh:node shsh:ListShape ;        # xone-node
+	] .
+	
+shsh:NodeShapeShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf sh:node ;        # node-node
+	sh:property [
+		sh:path sh:path ;
+		sh:maxCount 0 ;                 # NodeShape-path-maxCount
+	] ;
+	sh:property [
+		sh:path sh:lessThan ;
+		sh:maxCount 0 ;                 # lessThan-scope
+	] ;
+	sh:property [
+		sh:path sh:lessThanOrEquals ;
+		sh:maxCount 0 ;                 # lessThanOrEquals-scope
+	] ;
+	sh:property [
+		sh:path sh:maxCount ;
+		sh:maxCount 0 ;                 # maxCount-scope
+	] ;
+	sh:property [
+		sh:path sh:minCount ;
+		sh:maxCount 0 ;                 # minCount-scope
+	] ;
+	sh:property [
+		sh:path sh:qualifiedValueShape ;
+		sh:maxCount 0 ;                 # qualifiedValueShape-scope
+	] ;
+	sh:property [
+		sh:path sh:uniqueLang ;
+		sh:maxCount 0 ;                 # uniqueLang-scope
+	] .
+
+shsh:PropertyShapeShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf sh:property ;    # property-node
+	sh:property [
+		sh:path sh:path ;
+		sh:maxCount 1 ;                 # path-maxCount
+		sh:minCount 1 ;                 # PropertyShape-path-minCount
+		sh:node shsh:PathShape ;        # path-node
+	] .
+
+# Values of sh:and, sh:or and sh:xone must be lists of shapes
+shsh:ShapesListShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf sh:and ;         # and-members-node
+	sh:targetObjectsOf sh:or ;          # or-members-node
+	sh:targetObjectsOf sh:xone ;        # xone-members-node
+	sh:property [
+		sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;
+		sh:node shsh:ShapeShape ;
+	] .
+
+
+# A path of blank node path syntax, used to simulate recursion
+_:PathPath
+	sh:alternativePath (
+		( [ sh:zeroOrMorePath rdf:rest ] rdf:first )
+		( sh:alternativePath [ sh:zeroOrMorePath rdf:rest ] rdf:first )
+		sh:inversePath
+		sh:zeroOrMorePath
+		sh:oneOrMorePath
+		sh:zeroOrOnePath 
+	) .
+
+shsh:PathShape
+	a sh:NodeShape ;
+	rdfs:label "Path shape"@en ;
+	rdfs:comment "A shape that can be used to validate the syntax rules of well-formed SHACL paths."@en ;
+	rdfs:seeAlso <https://www.w3.org/TR/shacl/#property-paths> ;
+	sh:property [
+		sh:path [ sh:zeroOrMorePath _:PathPath ] ;
+		sh:node shsh:PathNodeShape ;
+	] .
+
+shsh:PathNodeShape
+	sh:xone (                           # path-metarule
+			[ sh:nodeKind sh:IRI ]          # 2.3.1.1: Predicate path
+			[ sh:nodeKind sh:BlankNode ;    # 2.3.1.2: Sequence path
+			  sh:node shsh:PathListWithAtLeast2Members ;
+			]
+			[ sh:nodeKind sh:BlankNode ;    # 2.3.1.3: Alternative path
+			  sh:closed true ;
+			  sh:property [
+			    sh:path sh:alternativePath ;
+			    sh:node shsh:PathListWithAtLeast2Members ;
+			    sh:minCount 1 ;
+			    sh:maxCount 1 ;
+			  ]
+			]
+			[ sh:nodeKind sh:BlankNode ;    # 2.3.1.4: Inverse path
+			  sh:closed true ;
+			  sh:property [
+			    sh:path sh:inversePath ;
+			    sh:minCount 1 ;
+			    sh:maxCount 1 ;
+			  ] 
+			]
+			[ sh:nodeKind sh:BlankNode ;    # 2.3.1.5: Zero-or-more path
+			  sh:closed true ;
+			  sh:property [
+			    sh:path sh:zeroOrMorePath ;
+			    sh:minCount 1 ;
+			    sh:maxCount 1 ;
+			  ] 
+			]
+			[ sh:nodeKind sh:BlankNode ;    # 2.3.1.6: One-or-more path
+			  sh:closed true ;
+			  sh:property [
+			    sh:path sh:oneOrMorePath ;
+			    sh:minCount 1 ;
+			    sh:maxCount 1 ;
+			  ] 
+			]
+			[ sh:nodeKind sh:BlankNode ;    # 2.3.1.7: Zero-or-one path
+			  sh:closed true ;
+			  sh:property [
+			    sh:path sh:zeroOrOnePath ;
+			    sh:minCount 1 ;
+			    sh:maxCount 1 ;
+			  ] 
+			]
+		) .
+
+shsh:PathListWithAtLeast2Members
+	a sh:NodeShape ;
+	sh:node shsh:ListShape ;
+	sh:property [
+		sh:path [ sh:oneOrMorePath rdf:rest ] ;
+		sh:minCount 2 ;    # 1 other list node plus rdf:nil
+	] .
+
+shsh:ShapesGraphShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf sh:shapesGraph ;
+	sh:nodeKind sh:IRI .                # shapesGraph-nodeKind
+
+shsh:EntailmentShape
+	a sh:NodeShape ;
+	sh:targetObjectsOf sh:entailment ;
+	sh:nodeKind sh:IRI .                # entailment-nodeKind
+
+
+core-validators - D. Summary of SHACL Core Validators
+
+security - E. Security and Privacy Considerations
+
+ack - F. Acknowledgements
+
+revision-history - G. Revision History
+
+references - H. References
+
+references / normative-references - H.1 Normative references
+
+references / informative-references - H.2 Informative references
+
